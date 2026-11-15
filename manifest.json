@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "Hover Translate",
+  "version": "1.0.0",
+  "description": "PDFの文にカーソルを合わせて翻訳し、対象の文全体をハイライト。閲覧画面で翻訳のオン・オフ、モデル、翻訳元・翻訳先を切り替えられます。",
+  "author": "Hover Translate contributors",
+  "icons": {
+    "48": "icon.svg",
+    "96": "icon.svg"
+  },
+  "homepage_url": "https://github.com/zerollpaper/zotero-hover-translate",
+  "applications": {
+    "zotero": {
+      "id": "hover-translate@local",
+      "strict_min_version": "10.0",
+      "strict_max_version": "10.*",
+      "update_url": "https://hover-translate.invalid/updates.json"
+    }
+  }
+}

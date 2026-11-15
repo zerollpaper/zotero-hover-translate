@@ -1,0 +1,21 @@
+{
+  "test": [
+    "npm",
+    "test",
+    "--silent"
+  ],
+  "timeout": 40,
+  "locked": [
+    "biome.json",
+    "tests/cache.test.cjs",
+    "tests/core.test.cjs",
+    "tests/fulltext.test.cjs",
+    "tests/japanese.test.cjs",
+    "tests/layout.test.cjs",
+    "tests/manifest.test.cjs",
+    "tests/prefs.test.cjs",
+    "tests/reader.test.cjs",
+    "tests/service.test.cjs"
+  ],
+  "max_rounds": 3
+}

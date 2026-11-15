@@ -1,0 +1,13 @@
+{
+  "name": "zotero-hover-translate",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "biome lint",
+    "test": "biome lint && node --test tests/*.test.cjs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.4",
+    "jsdom": "30.1.1"
+  }
+}

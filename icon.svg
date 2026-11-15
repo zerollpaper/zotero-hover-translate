@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Same glyph as the reader toolbar's 翻訳設定 button, on a fixed blue tile so it reads in light and dark themes. -->
+  <rect x="0.5" y="0.5" width="23" height="23" rx="5.5" fill="#3d7be0"/>
+  <g transform="translate(2 2) scale(0.8333)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 5h12M9 3v2M5 5c0 5 4 9 8 11M13 5c0 5-4 9-9 11M13 21l4-10 4 10M14.5 17h5"/>
+  </g>
+</svg>

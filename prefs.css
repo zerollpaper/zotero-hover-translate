@@ -1,0 +1,53 @@
+/* Native Zotero preference groups; scoped to avoid affecting other plugins. */
+#ht-preferences { color: var(--fill-primary, CanvasText); font: inherit; min-width: 0; }
+#ht-preferences groupbox { min-width: 0; }
+#ht-preferences h2 { font-size: 1.1em; margin-block: 6px 10px; }
+#ht-preferences .ht-form {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 8px;
+  margin-block: 6px;
+}
+#ht-preferences .ht-form > label { margin: 0; }
+#ht-preferences input, #ht-preferences button { font: inherit; }
+#ht-preferences input[type="text"],
+#ht-preferences input[type="url"],
+#ht-preferences input[type="password"] { box-sizing: border-box; width: 100%; min-width: 0; margin: 0; }
+#ht-preferences input[type="number"] { width: 90px; margin: 0; }
+#ht-preferences input[type="range"] { width: 170px; max-width: 100%; min-width: 60px; margin: 0; }
+#ht-preferences .ht-control { display: flex; align-items: center; gap: 8px; min-width: 0; }
+#ht-preferences .ht-slider-value { min-width: 6em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+#ht-preferences .ht-check { display: flex; align-items: center; gap: 6px; margin-block: 3px 8px; }
+#ht-preferences .ht-check input { margin: 0; }
+#ht-preferences .ht-help { color: var(--fill-secondary, GrayText); font-size: .95em; line-height: 1.55; margin-block: 6px; overflow-wrap: anywhere; }
+#ht-preferences .ht-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-block: 8px 4px; }
+#ht-preferences .ht-actions button { margin: 0; white-space: nowrap; }
+#ht-preferences summary { cursor: pointer; margin-block: 8px; }
+#ht-preferences .ht-preview-stage {
+  min-width: 0; padding: 12px;
+  border: 1px solid var(--fill-quinary, #d0d0d0);
+  border-radius: 4px;
+  /* A white popup over a white theme surface hides alpha changes. Keep a
+     contrasting reference pattern under the entire preview in either theme. */
+  background-color: #d2d9e0;
+  background-image: conic-gradient(#a2aeba 25%, #e2e7ec 0 50%, #a2aeba 0 75%, #e2e7ec 0);
+  background-size: 24px 24px;
+  overflow: hidden;
+}
+/* Keep in step with the reader popup built in addon.js (box, ×, ↻, translation). */
+#ht-preview { position: relative; width: max-content; box-sizing: border-box; padding: 16px 18px; border: 1px solid #9bacb6; border-radius: 12px; box-shadow: 0 5px 28px #0003; color: #182a31; font-family: system-ui, sans-serif; line-height: 1.9; overflow-wrap: anywhere; }
+#ht-preferences .ht-preview-text { min-height: 28px; padding-right: 24px; white-space: normal; }
+#ht-preferences .ht-preview-button { position: absolute; right: 10px; width: 24px; height: 24px; line-height: 24px; text-align: center; color: inherit; user-select: none; }
+#ht-preferences .ht-preview-close { top: 6px; font-size: 22px; }
+#ht-preferences .ht-preview-refresh { top: 32px; font-size: 20px; }
+#ht-preferences .ht-preview-highlight { background: #ffe28a; color: #17252e; border-radius: 3px; box-shadow: 0 0 0 2px #ffe28a; }
+#ht-preferences .ht-action-status { font-size: .95em; line-height: 1.55; overflow-wrap: anywhere; }
+#ht-preferences .ht-action-status:empty { display: none; }
+#ht-preferences .ht-feedback { margin: 8px 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+#ht-preferences .ht-feedback:empty { display: none; }
+@media (max-width: 560px) {
+  #ht-preferences .ht-form { column-gap: 8px; }
+  #ht-preferences input[type="range"] { width: 120px; }
+}
