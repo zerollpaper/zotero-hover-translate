@@ -7,6 +7,7 @@ Zotero 10 用プラグイン「Hover Translate」。使い方と構成は [READM
 - 合格条件は `.agents/check.json`（`npm test`＝lint の Biome と `node --test tests/*.test.cjs`。lint は2026-11-16 に導入、設定は `biome.json`）。Stop フックが、変更があるのにテストが通らないあいだは作業を終えさせない。
 - `check.json` の `locked` にあるテストと `biome.json` は保護している。動きを変えるためにどうしても書き換えるときは、理由を伝えて Satoshi の了承を得る。そのとき、コミットへのまとめも同じ流れで了承をもらい、書き換えとコミットを続けて行う（未コミットのまま終えると、保護したファイルの変更として RED になる。2026-11-16 に実際に起きた）。
 - 保護していないテスト（`tests/claude.test.cjs` など）は、機能を足すときに自由に足してよい。
+- `tests/reader.test.cjs` は偽の時計（`node:test` の `mock.timers`）で動く。待つときは `wait()` を使い、実時間の `setTimeout` で待たない。addon.js は vm の中で動くので、偽の `Date` は fixture の `scope` で渡している（渡さないと vm 内の本物の `Date` が使われ、45ms の間引きで動きが止まる。2026-11-17）。
 
 ## コミットと GitHub
 

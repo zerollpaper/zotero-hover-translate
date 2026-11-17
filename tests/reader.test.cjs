@@ -1,10 +1,16 @@
-const {test}=require('node:test');
+const {test,mock}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const {JSDOM}=require(process.env.HT_JSDOM || 'jsdom');
-const wait=ms=>new Promise(r=>setTimeout(r,ms));
+// 実時間で待つとファイル全体で約14秒かかるため、時計を偽物にして wait() で進める（2026-11-17）。
+// JSDOM の setTimeout・setInterval と addon.js の Date.now もこの偽の時計で動く。
+// 10ms 刻みで進め、刻みごとに setImmediate で Promise の続きを流すので、実時間で待ったときと同じ順で処理が進む。
+mock.timers.enable({apis:['setTimeout','setInterval','Date'],now:Date.now()});
+const flush=()=>new Promise(r=>setImmediate(r));
+// wait(0) も、実時間の setTimeout(0) と同じく1回は続きを流す。
+const wait=async ms=>{let left=ms;do{const step=Math.min(10,Math.max(left,0));mock.timers.tick(step);await flush();left-=10;}while(left>0);};
 function fixture(request, pageTop = 0, geometry = 'normal', pageLeft = 0, multiline = false, fullSetup = null) {
   const dom=new JSDOM('<body><div class="page" data-page-number="1"></div></body>',{pretendToBeVisual:true});
   const win=dom.window,doc=win.document,page=doc.querySelector('.page');
@@ -31,7 +37,7 @@ function fixture(request, pageTop = 0, geometry = 'normal', pageLeft = 0, multil
   };
   win.PDFViewerApplication={pdfDocument:{getPageData:async()=>({chars})},pdfViewer:{getPageView:()=>({viewport})}};
   const prefs=new Map(Object.entries({baseURL:'https://example.com/v1',model:'test',delay:200,hideDelay:180,enabled:true}).map(([k,v])=>['extensions.hoverTranslate.'+k,v]));
-  const scope={URL,Zotero:{Prefs:{get:k=>prefs.get(k),set:(k,v)=>prefs.set(k,v)},HTTP:{request},getMainWindow:()=>win,Reader:{_readers:[{_iframeWindow:win,_window:host}]}},Services:{},Components:{utils:{cloneInto:x=>x}}};
+  const scope={URL,Date,Zotero:{Prefs:{get:k=>prefs.get(k),set:(k,v)=>prefs.set(k,v)},HTTP:{request},getMainWindow:()=>win,Reader:{_readers:[{_iframeWindow:win,_window:host}]}},Services:{},Components:{utils:{cloneInto:x=>x}}};
   if(fullSetup){
     scope.PathUtils={join:(...a)=>a.join('/'),parent:p=>p.slice(0,p.lastIndexOf('/'))};
     scope.IOUtils={
