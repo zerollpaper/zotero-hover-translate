@@ -3,117 +3,120 @@
 [![Zotero](https://img.shields.io/badge/Zotero-10.x-CC2936?style=flat-square&logo=zotero&logoColor=white)](https://www.zotero.org/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-Zotero で英語の論文 PDF を読むとき、文にカーソルを合わせるだけで日本語訳を表示するプラグインです。
-文を選択する必要はありません。訳した文は原文側でも文全体がハイライトされます。
+English | [日本語](README.ja.md)
 
-[Nova-Meteor/zotero-sentence-hover](https://github.com/Nova-Meteor/zotero-sentence-hover)（中国語向け、v1.1.2）を元に、
-日本語で使えるように大きく作り直したものです。元の MIT ライセンスと著作権表示は [LICENSE](LICENSE) にそのまま残しています。
+A Zotero plugin that translates a sentence in a PDF as soon as you rest the cursor on it.
+There is no need to select text. The whole source sentence is highlighted while its translation is shown.
 
-## できること
+It is a heavily reworked version of [Nova-Meteor/zotero-sentence-hover](https://github.com/Nova-Meteor/zotero-sentence-hover) (for Chinese, v1.1.2).
+The original MIT license and copyright notice are kept in [LICENSE](LICENSE).
 
-- **ホバー翻訳**：カーソルのある英文を自動で見つけて翻訳し、ポップアップで表示します（既定は 500 ミリ秒待ってから）。
-- **文全体のハイライト**：翻訳している文を原文の上で行ごとにハイライトします。PDF の注釈としては保存しない一時的な表示です。
-- **全文の事前翻訳**：PDF 全体をまとめて翻訳しておき、あとはキャッシュから即座に表示します。
-- **閲覧画面での切り替え**：PDF 上部のツールバーの「翻訳設定」から、翻訳のオン・オフ、翻訳サービスとモデル、翻訳元・翻訳先を変えられます。
-- **翻訳サービス**：Google 翻訳（API キー不要）、DeepL、Claude（Anthropic の API）、Gemini（Google の AI API）、自分で登録する LLM API から選べます。LLM API は、OpenAI 互換の Chat Completions 形式で受け付けるサービスなら OpenAI 以外でも使え、LM Studio や Ollama などのローカル LLM も使えます。
+## Features
 
-## 本家との違い
+- **Hover translation**: finds the sentence under the cursor, translates it, and shows the result in a popup (after 500 ms by default).
+- **Whole-sentence highlight**: highlights the sentence being translated, line by line, on the page. It is a temporary display, not a PDF annotation.
+- **Full-text translation in advance**: translates the whole PDF at once, so later hovers show the result from the cache immediately.
+- **Controls in the reader**: “Translation settings” on the PDF toolbar turns translation on and off and switches the service, model, and source and target languages.
+- **Translation services**: Google Translate (no API key), DeepL, Claude (Anthropic API), Gemini (Google AI API), or an LLM API you register. The LLM API accepts any service that takes the OpenAI-compatible Chat Completions format, including local LLMs such as LM Studio and Ollama.
+- **Languages**: translates between English, Japanese, Chinese (Simplified), Korean, German, French and Spanish. The source language can also be detected automatically.
+- **English and Japanese interface**: the plugin follows Zotero’s language. It is shown in Japanese when Zotero is in Japanese and in English otherwise. Zotero follows the system language by default; to change it, see Zotero’s settings (Advanced).
 
-- 翻訳先の既定を日本語にしました。簡体字中国語・英語・韓国語・ドイツ語・フランス語・スペイン語も選べます。
-- 設定画面、ポップアップ、エラー表示を日本語にしました。
-- Google 翻訳を選べるようにしました。
-- 軽い（小さい）モデルでも使えるよう、既定では「文全体の訳だけ」を求めます。訳文の単語連動ハイライトは設定で有効にできますが、モデルの出力品質に左右されます。
-- 原文は単語ではなく文全体をハイライトします。
-- 本家と同時に入れても衝突しないよう、アドオン ID（`hover-translate@local`）、設定の保存先、キャッシュ名を分けています。
-- 本家の更新で上書きされないよう、自動更新の確認先は存在しないアドレス（`.invalid`）にしています。新しい版は手動で入れ直してください。
+## Changes from the original
 
-## インストール
+- The plugin was rebuilt for Japanese users and now also has an English interface.
+- On first use, the target language is Zotero’s language when the plugin offers it (Chinese, Korean, German, French or Spanish), and Japanese otherwise. You can change it at any time.
+- Google Translate, DeepL, Claude and Gemini were added.
+- So that small models work, only the translation of the whole sentence is requested by default. Word-level highlighting in the translation can be turned on in the settings, but its quality depends on the model.
+- The source is highlighted by whole sentence rather than by word.
+- The add-on ID (`hover-translate@local`), settings and cache names differ from the original, so both can be installed at the same time.
+- The update URL points to a non-existent address (`.invalid`) so that the original’s updates do not replace this plugin. Install new versions manually.
 
-Zotero **10.x** が必要です。
+## Installation
 
-1. [Releases](https://github.com/zerollpaper/zotero-hover-translate/releases/latest) から `hover-translate-<版>.xpi` をダウンロードします（自分で作るときは下の「開発」の手順で `outputs/` にできます）。
-2. Zotero の **ツール → プラグイン** を開きます。
-3. 右上の歯車から **Install Plugin From File…**（ファイルからプラグインをインストール）を選び、xpi を指定します。
-4. PDF を開き直します。設定画面に項目が出ないときは Zotero を再起動してください。
+Zotero **10.x** is required.
 
-前の版の上に入れれば、そのまま置き換わります。設定とキャッシュは残ります。
+1. Download `hover-translate-<version>.xpi` from [Releases](https://github.com/zerollpaper/zotero-hover-translate/releases/latest) (or build it yourself into `outputs/` as described under “Development”).
+2. In Zotero, open **Tools → Plugins**.
+3. From the gear menu at the top right, choose **Install Plugin From File…** and select the xpi.
+4. Reopen your PDFs. If the settings pane does not appear, restart Zotero.
 
-## 設定
+Installing over an earlier version replaces it. Settings and caches are kept.
 
-**Zotero → 設定 → Hover Translate** で設定します。
+## Settings
 
-### 翻訳サービス
+Open **Zotero → Settings → Hover Translate**.
 
-| 項目 | 内容 |
+### Translation service
+
+| Setting | Description |
 | --- | --- |
-| 翻訳サービス | 「Google翻訳」「DeepL」「LLM API（OpenAI互換形式・ローカルLLM可）」「Claude（Anthropic API）」「Gemini（Google AI API）」のどれか |
-| 翻訳元・翻訳先 | 翻訳元は「自動判定」も選べます。翻訳先の既定は日本語です |
-| 接続先 | LLM API のとき。OpenAI・xAI（Grok）・DeepSeek・Mistral AI・Groq・OpenRouter・LM Studio・Ollama から選ぶと、API URL が入ります。一覧にないサービスは「その他」 |
-| API URL | LLM API のとき。「その他」なら、使うサービスが案内している OpenAI 互換の URL（多くは `…/v1` で終わる形。`/chat/completions` まで書いても構いません） |
-| モデル名 | LLM API のとき。サービスが決めているモデルの ID。「モデル一覧を取得」を押すと「モデルの候補」から選べます。接続先が LM Studio・Ollama のときは、自動で一覧を取ってきます（モデルが1つだけなら、その名前を自動で入れます） |
-| APIキー（任意） | LLM API のとき。認証のいらないローカルサーバーなら空欄で構いません。接続先を別のサービスに変えると、モデル名とともに空になります |
-| Claudeのモデル名 | Claude のとき。既定は `claude-haiku-5-5`（速くて安く、翻訳に向いています） |
-| ClaudeのAPIキー | Claude のとき。[Claude Console](https://platform.claude.com/) で作った API キー |
-| Geminiのモデル名 | Gemini のとき。既定は `gemini-3.5-flash-lite`（Gemini 3 世代でいちばん安いモデル） |
-| GeminiのAPIキー | Gemini のとき。[Google AI Studio](https://aistudio.google.com/) で作った API キー |
-| DeepLのAPIキー | DeepL のとき。DeepL のアカウントで作った API キー。Free（末尾が `:fx`）と Pro のどちらも使え、送り先は自動で切り替えます |
-| 訳文の単語連動ハイライト（高負荷） | カーソルを合わせた原文の単語に対応する訳語を、ポップアップの訳文でハイライトします。LLM API・Claude・Gemini で、翻訳元が英語のときだけ使えます。モデルによっては精度が出ません |
+| Translation service | Google Translate, DeepL, LLM API (OpenAI-compatible, local LLMs supported), Claude (Anthropic API) or Gemini (Google AI API) |
+| Translate from / Translate to | “Detect language” is also available for the source |
+| Service | For LLM API. Choosing OpenAI, xAI (Grok), DeepSeek, Mistral AI, Groq, OpenRouter, LM Studio or Ollama fills in the API URL. For other services, choose “Other” |
+| API URL | For LLM API. With “Other”, the OpenAI-compatible URL of the service (usually ending in `…/v1`; including `/chat/completions` is fine) |
+| Model name | For LLM API. The model ID defined by the service. “Load model list” lets you choose from “Available models”. For LM Studio and Ollama the list is loaded automatically (and with a single model, its name is filled in) |
+| API key (optional) | For LLM API. Leave it empty for a local server that needs no authentication. Changing the service clears it together with the model name |
+| Claude model name | For Claude. The default is `claude-haiku-5-5` (fast, inexpensive and good for translation) |
+| Claude API key | For Claude. An API key created in the [Claude Console](https://platform.claude.com/) |
+| Gemini model name | For Gemini. The default is `gemini-3.5-flash-lite` (the least expensive Gemini 3 model) |
+| Gemini API key | For Gemini. An API key created in [Google AI Studio](https://aistudio.google.com/) |
+| DeepL API key | For DeepL. An API key created in your DeepL account. Both Free (ending in `:fx`) and Pro keys work; the endpoint is chosen automatically |
+| Highlight matching words in the translation (heavy) | Highlights, in the popup, the translation of the source word under the cursor. Available for LLM API, Claude and Gemini when translating from English. Accuracy depends on the model |
 
-LLM API・Claude・Gemini では、**モデル一覧を取得** を押すと、そのサービスで使えるモデルが「モデルの候補」に並び、選ぶとモデル名に入ります（Claude・Gemini は先に API キーを入れてください）。
+For LLM API, Claude and Gemini, **Load model list** shows the service’s models under “Available models”; choosing one fills in the model name (enter the API key first for Claude and Gemini).
 
-**保存して接続テスト** を押すと、設定を保存して翻訳元の言語の例文を 1 文翻訳してみます。
+**Save and test connection** saves the settings and translates one sample sentence in the source language.
 
-### 読み取り時の動作
+### While reading
 
-| 項目 | 内容 |
+| Setting | Description |
 | --- | --- |
-| ホバー翻訳を有効にする | 閲覧画面の「翻訳：オン／オフ」と同じです |
-| 原文の文全体をハイライト | 翻訳中の文を原文の上でハイライトします |
-| ホバーの待機時間 | カーソルを止めてから翻訳を始めるまでの時間（既定 500 ミリ秒） |
-| 全文事前翻訳の同時実行数 | 1〜6 件（既定 3 件） |
+| Enable hover translation | Same as “Translation: On/Off” in the reader |
+| Highlight the whole source sentence | Highlights the sentence being translated on the page |
+| Hover delay | Time between the cursor stopping and translation starting (500 ms by default) |
+| Parallel requests for full-text translation | 1 to 6 (3 by default) |
 
-### ポップアップの外観
+### Popup appearance
 
-| 項目 | 範囲 | 既定 |
+| Setting | Range | Default |
 | --- | --- | --- |
-| 訳文の文字サイズ | 12〜32 px | 17 px |
-| 最大幅 | 240〜1200 px | 640 px |
-| 背景の透明度 | 0〜80% | 0%（不透明） |
+| Translation font size | 12–32 px | 17 px |
+| Maximum width | 240–1200 px | 640 px |
+| Background transparency | 0–80% | 0% (opaque) |
 
-「表示プレビュー」には、翻訳先の言語・単語連動ハイライトの設定に合わせたポップアップの表示例が出ます。
+“Preview” shows how the popup looks with the current target language and word-highlighting settings.
 
-## 使い方
+## Usage
 
-| したいこと | 操作 |
+| To | Do this |
 | --- | --- |
-| 文を翻訳する | 英文の上でカーソルを止める |
-| 同じ文を訳し直す | ポップアップの ↻、または **Ctrl+Alt+R**（macOS は **⌘+Option+R**） |
-| ポップアップを閉じる | ×、**Esc**、またはページをスクロール |
-| 訳文をコピーする | ポップアップにカーソルを移して選択・コピー |
-| 翻訳のオン・オフや言語・モデルを変える | PDF 上部のツールバーの「翻訳設定」 |
-| PDF 全体を事前に翻訳する | 「翻訳設定」の「全文翻訳」。もう一度押すとキャンセル |
+| Translate a sentence | Rest the cursor on the sentence |
+| Translate the same sentence again | ↻ in the popup, or **Ctrl+Alt+R** (**⌘+Option+R** on macOS) |
+| Close the popup | ×, **Esc**, or scroll the page |
+| Copy the translation | Move the cursor into the popup, then select and copy |
+| Switch translation on or off, or change languages or the model | “Translation settings” on the PDF toolbar |
+| Translate the whole PDF in advance | “Translate all” in “Translation settings”. Click again to cancel |
 
-## データの扱いと注意
+## Data and caveats
 
-- **送信するもの**：ホバーした文を、設定した翻訳サービスに送ります。Google 翻訳と Gemini を選ぶと原文は Google に、DeepL を選ぶと DeepL に、Claude を選ぶと Anthropic に送られます。手元だけで処理したいときは、ローカル LLM を使ってください。
-- **Google 翻訳について**：キーのいらない Web 用の窓口を使っているので、利用制限や仕様の変更で使えなくなることがあります。訳文の単語連動ハイライトには対応しません。
-- **API キー**：Zotero の設定に保存されます。設定ファイルを人に渡さないでください。
-- **キャッシュ**：翻訳結果は PDF と同じフォルダーに JSON で保存し、再起動後も使います。翻訳サービス・モデル・翻訳元・翻訳先・単語連動の有無ごとに分けて保存します。全文事前翻訳の結果は別のファイルで、通常キャッシュの 1,000 文の上限はかかりません。
-- **変更しないもの**：PDF の中身、Zotero の項目・タグ・注釈・引用キーは変更しません。
-- **苦手なもの**：本文中の数式、画像だけの PDF（OCR はしません）、複雑な段組や罫線のない表、本文と同じ大きさの図中ラベルは、文の切り出しを誤ることがあります。
-- **LLM API で使えるサービス**：OpenAI 互換の Chat Completions 形式（`/chat/completions` に POST し、API キーを `Authorization: Bearer` で送る形）に対応していれば、提供元は問いません。この形に対応していないサービス（独自形式の API、URL にクエリが必要な API など）は使えません。
-- **Claude について**：Anthropic の Messages API を直接使います。考える量を低く（`effort: low`）指定し、訳文の JSON の形を API 側で保証させています。利用料は Claude Console のクレジットから引かれます。Max・Ultra・Team プランに付く毎月の API クレジットは、Claude Console の組織をプランにつなぐと使えます。
-- **Gemini について**：Google の generateContent API を直接使います。訳文の JSON の形を API 側で保証させ、考える量はモデルの世代に合わせてできるだけ少なくしています（Gemini 3・4 は `low`、2.5 Flash は考える処理を止める。Flash-Lite と 2.5 Pro はモデルの既定のまま）。
-- **DeepL について**：翻訳専用のサービスで、訳の質に定評があります。英語へ訳すときはアメリカ英語、中国語は簡体字で出力します。月ごとの文字数の上限に達すると、そのことを知らせます。
-- **API キーの保存**：サービスごとに別々に保存し、選んでいるサービスにだけ送ります。
-- **翻訳専用のローカルモデル（PLaMo 3 Translate）**：モデル名に `plamo` と `translate` が入っていると、そのモデル用の書式（`[plamo-translate]` で始まる設定と原文だけを送り、訳文だけを受け取る形）に自動で切り替えます。Ollama なら `ollama pull hf.co/pfnet/plamo-3-translate-2b-GGUF:Q4_K_M` で入れ、接続先「Ollama」、モデル名 `hf.co/pfnet/plamo-3-translate-2b-GGUF:Q4_K_M` で使えます。単語連動ハイライトには対応しません。PLaMo は PLaMo Community License で、個人・非商用の利用は無料です。
-- **LLM API の接続先**：HTTPS の URL が必要です。HTTP はこの Mac の中（`localhost`・`127.0.0.1`）への接続だけ使えます。
-- **LLM API の応答**：JSON で `{"translation":"訳文"}` を返すモデルが必要です。一覧から選んだ接続先には、そのサービスが案内している JSON 出力の指定（`response_format`）を付けて、形が崩れないようにしています（OpenAI・xAI・LM Studio・Ollama は JSON の形まで指定、DeepSeek・Mistral・Groq は JSON であることだけ指定、OpenRouter はモデルによって違うため指定なし）。OpenAI の考えるモデル（GPT-5 や o シリーズ）には、考える量を低くする指定も付けます。単語連動ハイライトを使うときは本家と同じ segments 形式を求めます。
-- 本家や別のホバー翻訳プラグインと同時に有効にすると、ポップアップが重なることがあります。
+- **What is sent**: the sentence you hover over is sent to the selected translation service. Google Translate and Gemini send it to Google, DeepL to DeepL, and Claude to Anthropic. To keep everything on your computer, use a local LLM.
+- **Google Translate**: it uses Google’s keyless web endpoint, so usage limits or changes on Google’s side may stop it from working. Word highlighting is not supported.
+- **API keys**: stored in Zotero’s preferences. Do not share your preferences file. Each service’s key is stored separately and sent only to that service.
+- **Cache**: translations are saved as JSON in the folder of each PDF and are reused after restarting. Each combination of service, model, source and target language and word highlighting has its own cache. Full-text translations are stored in a separate file and are not subject to the 1,000-sentence limit of the normal cache.
+- **What is not changed**: the PDF itself and Zotero items, tags, annotations and citation keys are never modified.
+- **Known weaknesses**: inline formulas, image-only PDFs (no OCR), complex layouts, tables without rules, and figure labels as large as body text may be split into sentences incorrectly.
+- **LLM API compatibility**: any provider works if it supports the OpenAI-compatible Chat Completions format (POST to `/chat/completions` with the API key sent as `Authorization: Bearer`). Services with their own formats or that need query parameters in the URL are not supported.
+- **Claude**: uses Anthropic’s Messages API directly with low effort (`effort: low`) and a JSON schema that guarantees the reply’s shape. Usage is charged to your Claude Console credits.
+- **Gemini**: uses Google’s generateContent API directly with a JSON schema. Thinking is kept to the minimum each generation allows (`low` for Gemini 3 and 4, off for 2.5 Flash; Flash-Lite and 2.5 Pro use the model default).
+- **DeepL**: translations into English use American English, and Chinese uses Simplified characters. You are told when the monthly character limit is reached.
+- **Translation-only local model (PLaMo 3 Translate)**: when the model name contains `plamo` and `translate`, the plugin switches to that model’s format (a `[plamo-translate]` settings message and the source text, with only the translation returned). With Ollama, install it with `ollama pull hf.co/pfnet/plamo-3-translate-2b-GGUF:Q4_K_M`, then choose “Ollama” and the model name `hf.co/pfnet/plamo-3-translate-2b-GGUF:Q4_K_M`. Word highlighting is not supported. PLaMo is under the PLaMo Community License, free for personal and non-commercial use.
+- **LLM API URL**: HTTPS is required. HTTP is allowed only for servers on your own computer (`localhost`, `127.0.0.1`).
+- **LLM API replies**: the model must answer in JSON as `{"translation":"…"}`. For services chosen from the list, the JSON output option each service documents (`response_format`) is added (a full schema for OpenAI, xAI, LM Studio and Ollama; JSON only for DeepSeek, Mistral and Groq; none for OpenRouter, which varies by model). OpenAI reasoning models (GPT-5 and the o series) are also asked for low reasoning effort. With word highlighting, the original plugin’s segments format is requested.
+- Enabling the original plugin or another hover-translation plugin at the same time may produce overlapping popups.
 
-## 開発
+## Development
 
-Node.js 24 以上と Python 3 が必要です。
+Node.js 24 or later and Python 3 are required.
 
 ```bash
 npm ci --ignore-scripts
@@ -121,19 +124,19 @@ npm test
 python3 scripts/build.py
 ```
 
-`outputs/` に xpi と SHA-256 のチェックサムができます。テストや開発用の依存は xpi に含めません。
+The xpi and its SHA-256 checksum are written to `outputs/`. Test and development dependencies are not included in the xpi.
 
-| ファイル | 役割 |
+| File | Role |
 | --- | --- |
-| `addon.js` | 閲覧画面の操作、翻訳のリクエスト、ポップアップ |
-| `core.js` | 文の切り出し、単語の位置、対応関係の検査 |
-| `cache.js` | キャッシュ |
-| `fulltext.js` | 全文事前翻訳の処理と進み具合 |
-| `prefs.xhtml` / `prefs.js` / `prefs.css` | 設定画面 |
-| `tests/` | 自動テスト（キャッシュ、翻訳、模擬の閲覧画面など） |
+| `addon.js` | Reader controls, translation requests and the popup |
+| `core.js` | Sentence splitting, word positions, validation, and the interface text in English and Japanese |
+| `cache.js` | Cache |
+| `fulltext.js` | Full-text translation and its progress |
+| `prefs.xhtml` / `prefs.js` / `prefs.css` | Settings pane (`prefs.js` holds the English text for the pane) |
+| `tests/` | Automated tests (cache, translation, simulated reader, and so on) |
 
-版ごとの変更は [CHANGELOG.md](CHANGELOG.md) にあります。
+Changes in each version are listed in [CHANGELOG.md](CHANGELOG.md) (in Japanese).
 
-## ライセンス
+## License
 
-MIT ライセンスです（[LICENSE](LICENSE)）。元のプログラムの著作権は Sentence Hover contributors にあります。
+MIT License ([LICENSE](LICENSE)). Copyright of the original program belongs to Sentence Hover contributors.

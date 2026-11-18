@@ -8,7 +8,7 @@
     return {
       cancelled: false, reason: '', promise: cancelled,
       onCancel(fn) { callbacks.add(fn); return () => callbacks.delete(fn); },
-      cancel(reason = 'キャンセルしました') {
+      cancel(reason = HTCore.t('cancelled')) {
         if (this.cancelled) return;
         this.cancelled = true; this.reason = reason; resolve();
         for (const fn of callbacks) { try { fn(); } catch (_) {} }
@@ -16,6 +16,9 @@
       }
     };
   }
+  // Authentication and quota errors fail every later sentence too, so the job stops.
+  // Errors without a code (from callers other than addon.js) are judged by their text.
+  const fatal = e => ['authFailed','quota'].includes(e?.htCode) || (!e?.htCode && /認証|利用上限|残高不足/.test(e?.message || ''));
   const stopped = s => { if (s.cancelled) throw new Error(s.reason); };
   async function interruptible(promise, s) {
     const value = await Promise.race([promise, s.promise]);
@@ -31,7 +34,7 @@
       })
     };
   }
-  function create({ id, serviceKey, title = '全文翻訳', storage = null, translate }) {
+  function create({ id, serviceKey, title = HTCore.t('fullTitle'), storage = null, translate }) {
     const results = new Map(), listeners = new Set();
     let pages = [], pageErrors = [], state = { phase:'idle', pages:0, pageCount:0, total:0, done:0, failed:0, emptyPages:0, message:'' };
     let task = null, token = null, writes = Promise.resolve(), hasStored = false;
@@ -51,7 +54,7 @@
         }
         if (Array.isArray(data.pages)) pages = data.pages.filter(p => Number.isInteger(p.pageIndex) && Array.isArray(p.sentences))
           .map(p => ({ pageIndex:p.pageIndex, sentences:p.sentences.filter(t => typeof t === 'string') }));
-      } catch (_) { state.message = '全文キャッシュを読み込めないため、再生成します。'; }
+      } catch (_) { state.message = HTCore.t('fullReadFailed'); }
     })();
     function snapshot() {
       return { schema:1, id, serviceKey, title, pages, pageErrors, results:[...results], state:{...state}, updatedAt:new Date().toISOString() };
@@ -59,7 +62,7 @@
     function persist() {
       writes = writes.catch(()=>{}).then(async () => {
         if (storage) { await storage.write(snapshot()); hasStored = true; }
-      }).catch(() => { state.phase = 'error'; state.message = '全文キャッシュを保存できません。PDFフォルダーの書き込み権限と空き容量を確認してください。'; emit(); throw new Error(state.message); });
+      }).catch(() => { state.phase = 'error'; state.message = HTCore.t('fullWriteFailed'); emit(); throw new Error(state.message); });
       // Handlers are installed immediately even when the UI is closed.
       writes.catch(() => {});
       return writes;
@@ -110,8 +113,8 @@
               } catch(e) {
                 if(s.cancelled) return;
                 state.failed++;
-                if(!halted)state.message=e.message || '一部の文を翻訳できませんでした';
-                if(state.failed>=3 || /認証|利用上限|残高不足/.test(state.message))halted=true;
+                if(!halted)state.message=e.message || HTCore.t('someFailed');
+                if(state.failed>=3 || fatal(e))halted=true;
               }
               emit();
               if(dirty>=10 && !storageError) {
@@ -126,7 +129,7 @@
           stopped(s);
           if(storageError)throw storageError;
           state.phase = state.done === state.total && !pageErrors.length && !state.emptyPages && state.total > 0 ? 'complete' : 'partial';
-          state.message = state.phase === 'complete' ? '全文翻訳が完了しました' : (state.message || '未翻訳の文、翻訳できる文がないページ、または読み込めないページがあります');
+          state.message = state.phase === 'complete' ? HTCore.t('fullComplete') : (state.message || HTCore.t('fullPartial'));
         } catch(e) {
           state.phase = s.cancelled ? 'cancelled' : 'error'; state.message = s.cancelled ? s.reason : e.message;
         } finally {
@@ -147,7 +150,7 @@
       cancel(reason) { token?.cancel(reason); },
       async settle() { if (task) await task; await writes; },
       async clear() {
-        token?.cancel('キャッシュを削除しました'); if (task) await task; await ready;
+        token?.cancel(HTCore.t('cacheCleared')); if (task) await task; await ready;
         const needsWrite = hasStored || results.size || pages.length;
         results.clear(); pages=[]; pageErrors=[]; state={phase:'idle',pages:0,pageCount:0,total:0,done:0,failed:0,emptyPages:0,message:''};
         writes = writes.catch(()=>{}); if (needsWrite) await persist(); emit();

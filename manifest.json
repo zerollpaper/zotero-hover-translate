@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Hover Translate",
   "version": "1.0.0",
-  "description": "PDFの文にカーソルを合わせて翻訳し、対象の文全体をハイライト。閲覧画面で翻訳のオン・オフ、モデル、翻訳元・翻訳先を切り替えられます。",
+  "description": "Hover over a sentence in a PDF to translate it and highlight the whole sentence. Switch translation, the model and the languages from the reader.",
   "author": "Hover Translate contributors",
   "icons": {
     "48": "icon.svg",

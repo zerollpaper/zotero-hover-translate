@@ -1,6 +1,12 @@
 # Hover Translate：エージェント向けの決まり
 
-Zotero 10 用プラグイン「Hover Translate」。使い方と構成は [README.md](README.md)、変更の記録は [CHANGELOG.md](CHANGELOG.md) を見る。
+Zotero 10 用プラグイン「Hover Translate」。使い方と構成は [README.md](README.md)（英語）と [README.ja.md](README.ja.md)（日本語）、変更の記録は [CHANGELOG.md](CHANGELOG.md) を見る。README を直すときは両方を直す。
+
+## 画面の言語
+
+- 画面は Zotero の表示言語に合わせて日本語か英語で出す（2026-11-18 に英語対応）。文言は `core.js` の `messages`（閲覧画面・エラー）と `prefs.js` の `HTPrefsText`（設定画面）に日本語と英語の両方を書く。`prefs.xhtml` の日本語の文言には `data-ht` を付け、英語を `pageEn` に足す。
+- エラーは `HTCore.failure(コード)` で作り、処理を分けるときは文言ではなく `e.htCode` で判定する（文言で判定すると英語表示で動かなくなる）。
+- Zotero の言語がわからないとき（`Zotero.locale` のないテスト）は日本語になる。英語の表示は `tests/i18n.test.cjs` で `locale` を渡して確かめる。
 
 ## 合格条件とテスト
 

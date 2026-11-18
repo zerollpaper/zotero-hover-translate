@@ -1,87 +1,87 @@
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml" id="ht-preferences" onload="window.HTPrefs.init()">
   <groupbox>
-    <label><html:h2>翻訳サービス</html:h2></label>
+    <label><html:h2 data-ht="heading.service">翻訳サービス</html:h2></label>
     <html:div class="ht-form">
-      <html:label for="ht-provider">翻訳サービス</html:label>
-      <html:select id="ht-provider"><html:option value="google">Google翻訳</html:option><html:option value="deepl">DeepL</html:option><html:option value="openai">LLM API（OpenAI互換形式・ローカルLLM可）</html:option><html:option value="anthropic">Claude（Anthropic API）</html:option><html:option value="gemini">Gemini（Google AI API）</html:option></html:select>
-      <html:label for="ht-sourceLanguage">翻訳元</html:label>
-      <html:select id="ht-sourceLanguage"><html:option value="auto">自動判定</html:option><html:option value="en">英語</html:option><html:option value="ja">日本語</html:option><html:option value="zh-CN">中国語（簡体字）</html:option><html:option value="ko">韓国語</html:option><html:option value="de">ドイツ語</html:option><html:option value="fr">フランス語</html:option><html:option value="es">スペイン語</html:option></html:select>
-      <html:label for="ht-targetLanguage">翻訳先</html:label>
-      <html:select id="ht-targetLanguage"><html:option value="en">英語</html:option><html:option value="ja">日本語</html:option><html:option value="zh-CN">中国語（簡体字）</html:option><html:option value="ko">韓国語</html:option><html:option value="de">ドイツ語</html:option><html:option value="fr">フランス語</html:option><html:option value="es">スペイン語</html:option></html:select>
-      <html:label for="ht-alignWords">訳文の単語連動ハイライト（高負荷）</html:label>
+      <html:label for="ht-provider" data-ht="label.provider">翻訳サービス</html:label>
+      <html:select id="ht-provider"><html:option value="google" data-ht="provider.google">Google翻訳</html:option><html:option value="deepl">DeepL</html:option><html:option value="openai" data-ht="provider.openai">LLM API（OpenAI互換形式・ローカルLLM可）</html:option><html:option value="anthropic" data-ht="provider.anthropic">Claude（Anthropic API）</html:option><html:option value="gemini" data-ht="provider.gemini">Gemini（Google AI API）</html:option></html:select>
+      <html:label for="ht-sourceLanguage" data-ht="label.source">翻訳元</html:label>
+      <html:select id="ht-sourceLanguage"><html:option value="auto" data-ht="lang.auto">自動判定</html:option><html:option value="en" data-ht="lang.en">英語</html:option><html:option value="ja" data-ht="lang.ja">日本語</html:option><html:option value="zh-CN" data-ht="lang.zh-CN">中国語（簡体字）</html:option><html:option value="ko" data-ht="lang.ko">韓国語</html:option><html:option value="de" data-ht="lang.de">ドイツ語</html:option><html:option value="fr" data-ht="lang.fr">フランス語</html:option><html:option value="es" data-ht="lang.es">スペイン語</html:option></html:select>
+      <html:label for="ht-targetLanguage" data-ht="label.target">翻訳先</html:label>
+      <html:select id="ht-targetLanguage"><html:option value="en" data-ht="lang.en">英語</html:option><html:option value="ja" data-ht="lang.ja">日本語</html:option><html:option value="zh-CN" data-ht="lang.zh-CN">中国語（簡体字）</html:option><html:option value="ko" data-ht="lang.ko">韓国語</html:option><html:option value="de" data-ht="lang.de">ドイツ語</html:option><html:option value="fr" data-ht="lang.fr">フランス語</html:option><html:option value="es" data-ht="lang.es">スペイン語</html:option></html:select>
+      <html:label for="ht-alignWords" data-ht="label.alignWords">訳文の単語連動ハイライト（高負荷）</html:label>
       <html:input id="ht-alignWords" type="checkbox"/>
-      <html:label for="ht-endpointPreset">接続先</html:label>
-      <html:select id="ht-endpointPreset"><html:option value="">その他（URLを自分で入力）</html:option><html:option value="https://api.openai.com/v1">OpenAI</html:option><html:option value="https://api.x.ai/v1">xAI（Grok）</html:option><html:option value="https://api.deepseek.com">DeepSeek</html:option><html:option value="https://api.mistral.ai/v1">Mistral AI</html:option><html:option value="https://api.groq.com/openai/v1">Groq</html:option><html:option value="https://openrouter.ai/api/v1">OpenRouter</html:option><html:option value="http://127.0.0.1:1234/v1">LM Studio（このMac）</html:option><html:option value="http://127.0.0.1:11434/v1">Ollama（このMac）</html:option></html:select>
+      <html:label for="ht-endpointPreset" data-ht="label.endpointPreset">接続先</html:label>
+      <html:select id="ht-endpointPreset"><html:option value="" data-ht="preset.other">その他（URLを自分で入力）</html:option><html:option value="https://api.openai.com/v1">OpenAI</html:option><html:option value="https://api.x.ai/v1">xAI（Grok）</html:option><html:option value="https://api.deepseek.com">DeepSeek</html:option><html:option value="https://api.mistral.ai/v1">Mistral AI</html:option><html:option value="https://api.groq.com/openai/v1">Groq</html:option><html:option value="https://openrouter.ai/api/v1">OpenRouter</html:option><html:option value="http://127.0.0.1:1234/v1" data-ht="preset.lmstudio">LM Studio（このMac）</html:option><html:option value="http://127.0.0.1:11434/v1" data-ht="preset.ollama">Ollama（このMac）</html:option></html:select>
       <html:label for="ht-baseURL">API URL</html:label>
       <html:input id="ht-baseURL" type="url" placeholder="http://127.0.0.1:1234/v1" aria-describedby="ht-api-help"/>
-      <html:label for="ht-model">モデル名</html:label>
-      <html:input id="ht-model" type="text" placeholder="接続先のモデルID"/>
-      <html:label for="ht-apiKey">APIキー（任意）</html:label>
+      <html:label for="ht-model" data-ht="label.model">モデル名</html:label>
+      <html:input id="ht-model" type="text" placeholder="接続先のモデルID" data-ht-placeholder="placeholder.model"/>
+      <html:label for="ht-apiKey" data-ht="label.apiKey">APIキー（任意）</html:label>
       <html:input id="ht-apiKey" type="password" autocomplete="off"/>
-      <html:label for="ht-claudeModel">Claudeのモデル名</html:label>
+      <html:label for="ht-claudeModel" data-ht="label.claudeModel">Claudeのモデル名</html:label>
       <html:input id="ht-claudeModel" type="text" placeholder="claude-haiku-5-5"/>
-      <html:label for="ht-claudeApiKey">ClaudeのAPIキー</html:label>
+      <html:label for="ht-claudeApiKey" data-ht="label.claudeApiKey">ClaudeのAPIキー</html:label>
       <html:input id="ht-claudeApiKey" type="password" autocomplete="off"/>
-      <html:label for="ht-geminiModel">Geminiのモデル名</html:label>
+      <html:label for="ht-geminiModel" data-ht="label.geminiModel">Geminiのモデル名</html:label>
       <html:input id="ht-geminiModel" type="text" placeholder="gemini-3.5-flash-lite"/>
-      <html:label for="ht-geminiApiKey">GeminiのAPIキー</html:label>
+      <html:label for="ht-geminiApiKey" data-ht="label.geminiApiKey">GeminiのAPIキー</html:label>
       <html:input id="ht-geminiApiKey" type="password" autocomplete="off"/>
-      <html:label for="ht-deeplApiKey">DeepLのAPIキー</html:label>
+      <html:label for="ht-deeplApiKey" data-ht="label.deeplApiKey">DeepLのAPIキー</html:label>
       <html:input id="ht-deeplApiKey" type="password" autocomplete="off"/>
-      <html:label for="ht-modelChoice">モデルの候補</html:label>
+      <html:label for="ht-modelChoice" data-ht="label.modelChoice">モデルの候補</html:label>
       <html:select id="ht-modelChoice"/>
     </html:div>
     <html:p id="ht-api-help" class="ht-help"/>
     <html:div class="ht-actions">
-      <html:button id="ht-loadModels" type="button">モデル一覧を取得</html:button>
-      <html:button id="ht-test" type="button">保存して接続テスト</html:button>
+      <html:button id="ht-loadModels" type="button" data-ht="button.loadModels">モデル一覧を取得</html:button>
+      <html:button id="ht-test" type="button" data-ht="button.test">保存して接続テスト</html:button>
     </html:div>
     <html:p id="ht-models-status" class="ht-feedback" role="status" aria-live="polite"/>
     <html:p id="ht-test-status" class="ht-feedback" role="status" aria-live="polite"/>
   </groupbox>
   <groupbox>
-    <label><html:h2>読み取り時の動作</html:h2></label>
-    <html:label class="ht-check"><html:input id="ht-enabled" type="checkbox"/>ホバー翻訳を有効にする</html:label>
-    <html:label class="ht-check"><html:input id="ht-highlightSentence" type="checkbox"/>原文の文全体をハイライト</html:label>
+    <label><html:h2 data-ht="heading.reading">読み取り時の動作</html:h2></label>
+    <html:label class="ht-check"><html:input id="ht-enabled" type="checkbox"/><html:span data-ht="check.enabled">ホバー翻訳を有効にする</html:span></html:label>
+    <html:label class="ht-check"><html:input id="ht-highlightSentence" type="checkbox"/><html:span data-ht="check.highlight">原文の文全体をハイライト</html:span></html:label>
     <html:div class="ht-form">
-      <html:label for="ht-delay">ホバーの待機時間</html:label>
-      <html:div class="ht-control"><html:input id="ht-delay" type="number" min="200" max="3000" step="100"/><html:span>ミリ秒</html:span></html:div>
-      <html:label for="ht-fullConcurrency">全文事前翻訳の同時実行数</html:label>
+      <html:label for="ht-delay" data-ht="label.delay">ホバーの待機時間</html:label>
+      <html:div class="ht-control"><html:input id="ht-delay" type="number" min="200" max="3000" step="100"/><html:span data-ht="unit.ms">ミリ秒</html:span></html:div>
+      <html:label for="ht-fullConcurrency" data-ht="label.fullConcurrency">全文事前翻訳の同時実行数</html:label>
       <html:div class="ht-control"><html:input id="ht-fullConcurrency" type="range" min="1" max="6" step="1"/><html:span id="ht-fullConcurrencyValue" class="ht-slider-value"/></html:div>
     </html:div>
-    <html:p class="ht-help">再翻訳：Ctrl+Alt+R（macOS：⌘+Option+R）、またはポップアップ内の ↻ をクリックします。</html:p>
-    <html:div class="ht-actions"><html:button id="ht-save" type="button">設定を保存</html:button><html:span id="ht-save-status" class="ht-action-status" role="status" aria-live="polite"/></html:div>
+    <html:p class="ht-help" data-ht="help.shortcut">再翻訳：Ctrl+Alt+R（macOS：⌘+Option+R）、またはポップアップ内の ↻ をクリックします。</html:p>
+    <html:div class="ht-actions"><html:button id="ht-save" type="button" data-ht="button.save">設定を保存</html:button><html:span id="ht-save-status" class="ht-action-status" role="status" aria-live="polite"/></html:div>
   </groupbox>
   <groupbox>
-    <label><html:h2>ポップアップの外観</html:h2></label>
+    <label><html:h2 data-ht="heading.appearance">ポップアップの外観</html:h2></label>
     <html:div class="ht-form">
-      <html:label for="ht-fontSize">訳文の文字サイズ</html:label>
+      <html:label for="ht-fontSize" data-ht="label.fontSize">訳文の文字サイズ</html:label>
       <html:div class="ht-control"><html:input id="ht-fontSize" type="range" min="12" max="32" step="1"/><html:span id="ht-fontSizeValue" class="ht-slider-value"/></html:div>
-      <html:label for="ht-popupWidth">最大幅</html:label>
+      <html:label for="ht-popupWidth" data-ht="label.popupWidth">最大幅</html:label>
       <html:div class="ht-control"><html:input id="ht-popupWidth" type="range" min="240" max="1200" step="10"/><html:span id="ht-popupWidthValue" class="ht-slider-value"/></html:div>
-      <html:label for="ht-transparency">背景の透明度</html:label>
+      <html:label for="ht-transparency" data-ht="label.transparency">背景の透明度</html:label>
       <html:div class="ht-control"><html:input id="ht-transparency" type="range" min="0" max="80" step="1"/><html:span id="ht-transparencyValue" class="ht-slider-value"/></html:div>
     </html:div>
     <html:details class="ht-preview-details" open="open">
-      <html:summary>表示プレビュー</html:summary>
+      <html:summary data-ht="preview.summary">表示プレビュー</html:summary>
       <html:div class="ht-preview-stage">
-        <html:div id="ht-preview" aria-label="ポップアップの表示例"><html:span class="ht-preview-button ht-preview-close" aria-hidden="true">×</html:span><html:span class="ht-preview-button ht-preview-refresh" aria-hidden="true">↻</html:span><html:div id="ht-preview-text" class="ht-preview-text"/></html:div>
+        <html:div id="ht-preview" aria-label="ポップアップの表示例" data-ht-aria-label="preview.label"><html:span class="ht-preview-button ht-preview-close" aria-hidden="true">×</html:span><html:span class="ht-preview-button ht-preview-refresh" aria-hidden="true">↻</html:span><html:div id="ht-preview-text" class="ht-preview-text"/></html:div>
       </html:div>
       <html:p id="ht-preview-note" class="ht-help"/>
     </html:details>
     <html:div class="ht-actions">
-      <html:button id="ht-saveAppearance" type="button">外観を保存</html:button>
+      <html:button id="ht-saveAppearance" type="button" data-ht="button.saveAppearance">外観を保存</html:button>
       <html:span id="ht-appearance-status" class="ht-action-status" role="status" aria-live="polite"/>
-      <html:button id="ht-defaultAppearance" type="button">外観を初期値に戻す</html:button>
+      <html:button id="ht-defaultAppearance" type="button" data-ht="button.defaultAppearance">外観を初期値に戻す</html:button>
       <html:span id="ht-default-status" class="ht-action-status" role="status" aria-live="polite"/>
     </html:div>
   </groupbox>
   <groupbox>
-    <label><html:h2>翻訳キャッシュ</html:h2></label>
-    <html:p class="ht-help">キャッシュは各PDFと同じフォルダーの <html:code>hover-translate-cache.json</html:code> に保存され、再起動後も利用できます。</html:p>
-    <html:p class="ht-help">1フォルダーにつき最大1,000文を保存します。90日間使われていないキャッシュは期限切れになります。翻訳サービス・モデル・翻訳元・翻訳先・単語連動ハイライトの有無ごとにキャッシュを分けます。</html:p>
-    <html:p class="ht-help">PDF閲覧画面の上部ツールバーにある「翻訳設定」の「全文翻訳」で、文献全体を事前に翻訳できます。全文キャッシュは <html:code>hover-translate-fulltext-*.json</html:code> に別途保存されます。文ごとの訳文（単語連動ハイライトが有効なときは原文の単語との対応も）を保存し、通常キャッシュの1,000文の上限は適用されません。</html:p>
-    <html:p class="ht-help">今回の起動中に読み込んだ文献のキャッシュだけを削除します。他の文献には影響しません。</html:p>
-    <html:div class="ht-actions"><html:button id="ht-clear" type="button">読み込み済み文献のキャッシュを削除</html:button><html:span id="ht-clear-status" class="ht-action-status" role="status" aria-live="polite"/></html:div>
+    <label><html:h2 data-ht="heading.cache">翻訳キャッシュ</html:h2></label>
+    <html:p class="ht-help" data-ht="cache.where">キャッシュは各PDFと同じフォルダーの <html:code>hover-translate-cache.json</html:code> に保存され、再起動後も利用できます。</html:p>
+    <html:p class="ht-help" data-ht="cache.limits">1フォルダーにつき最大1,000文を保存します。90日間使われていないキャッシュは期限切れになります。翻訳サービス・モデル・翻訳元・翻訳先・単語連動ハイライトの有無ごとにキャッシュを分けます。</html:p>
+    <html:p class="ht-help" data-ht="cache.full">PDF閲覧画面の上部ツールバーにある「翻訳設定」の「全文翻訳」で、文献全体を事前に翻訳できます。全文キャッシュは <html:code>hover-translate-fulltext-*.json</html:code> に別途保存されます。文ごとの訳文（単語連動ハイライトが有効なときは原文の単語との対応も）を保存し、通常キャッシュの1,000文の上限は適用されません。</html:p>
+    <html:p class="ht-help" data-ht="cache.scope">今回の起動中に読み込んだ文献のキャッシュだけを削除します。他の文献には影響しません。</html:p>
+    <html:div class="ht-actions"><html:button id="ht-clear" type="button" data-ht="button.clear">読み込み済み文献のキャッシュを削除</html:button><html:span id="ht-clear-status" class="ht-action-status" role="status" aria-live="polite"/></html:div>
   </groupbox>
 </vbox>

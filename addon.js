@@ -2,6 +2,7 @@
 var HoverTranslate = (() => {
   'use strict';
   const PREFIX = 'extensions.hoverTranslate.';
+  const t = (key, params) => HTCore.t(key, params);
   const contexts = new Map(), inflight = new Map(), requests = new Set();
   const articleCaches = new Map(), memoryReaders = new WeakMap();
   const fullDocuments = new Map();
@@ -22,7 +23,7 @@ var HoverTranslate = (() => {
       const prefix = store.path ? PathUtils.join(PathUtils.parent(store.path),'hover-translate-fulltext-'+shortHash(id)+'-'+shortHash(serviceKey)) : null;
       const entry = { prefix, reader, archive:null };
       entry.archive = HTFullText.create({
-        id, serviceKey, title: item?.getField?.('title') || 'PDF 全文翻訳',
+        id, serviceKey, title: item?.getField?.('title') || t('pdfFullTitle'),
         storage: prefix ? {
           async read() {
             if (!(await IOUtils.exists(prefix+'.json'))) return null;
@@ -48,8 +49,8 @@ var HoverTranslate = (() => {
         const item = reader._item || Zotero.Items.get(reader.itemID);
         const file = await item.getFilePathAsync();
         if (file && await IOUtils.exists(file)) cachePath = PathUtils.join(PathUtils.parent(file), 'hover-translate-cache.json');
-        else warning = 'PDFがこのMacにないため、この文献のキャッシュはメモリ上でのみ保持します。';
-      } catch (_) { warning = 'PDFの保存先を取得できないため、キャッシュはメモリ上でのみ保持します。'; }
+        else warning = t('pdfNotLocal');
+      } catch (_) { warning = t('pdfPathFailed'); }
     }
     if (reader && !memoryReaders.has(reader)) memoryReaders.set(reader, ++nextMemoryReader);
     const id = cachePath || (reader ? 'memory-reader-' + memoryReaders.get(reader) : 'memory-test');
@@ -98,7 +99,7 @@ var HoverTranslate = (() => {
   // one service's key to another.
   const ALIGNMENT_PROVIDERS = ['openai','anthropic','gemini'];
   const appearanceRanges = { fontSize: [12, 32, 17], popupWidth: [240, 1200, 640], transparency: [0, 80, 0] };
-  const defaults = { provider: 'openai', sourceLanguage: 'en', targetLanguage: 'ja', alignWords: false, enabled: true, highlightSentence: true, baseURL: '', model: '', apiKey: '', claudeModel: 'claude-haiku-5-5', claudeApiKey: '', geminiModel: 'gemini-3.5-flash-lite', geminiApiKey: '', deeplApiKey: '', delay: 500, fullConcurrency: 3, maxChars: 1800, fontSize: 17, popupWidth: 640, transparency: 0 };
+  const defaults = { provider: 'openai', sourceLanguage: 'en', targetLanguage: HTCore.defaultTargetLanguage(), alignWords: false, enabled: true, highlightSentence: true, baseURL: '', model: '', apiKey: '', claudeModel: 'claude-haiku-5-5', claudeApiKey: '', geminiModel: 'gemini-3.5-flash-lite', geminiApiKey: '', deeplApiKey: '', delay: 500, fullConcurrency: 3, maxChars: 1800, fontSize: 17, popupWidth: 640, transparency: 0 };
   function normalizeConcurrency(value) {
     const n=Number(value);
     return Number.isFinite(n)?Math.max(1,Math.min(6,Math.floor(n))):3;
@@ -126,11 +127,11 @@ var HoverTranslate = (() => {
     return model + '|source=' + c.sourceLanguage;
   }
   // Returns the message for a service that is not set up yet, or '' when it is ready.
-  function setupProblem(c, place = '設定の「Hover Translate」') {
-    if (c.provider === 'anthropic') return c.claudeApiKey && c.claudeModel ? '' : 'Claudeを使うには、' + place + 'でClaudeのAPIキーとモデル名を登録してください。';
-    if (c.provider === 'gemini') return c.geminiApiKey && c.geminiModel ? '' : 'Geminiを使うには、' + place + 'でGeminiのAPIキーとモデル名を登録してください。';
-    if (c.provider === 'deepl') return c.deeplApiKey ? '' : 'DeepLを使うには、' + place + 'でDeepLのAPIキーを登録してください。';
-    if (c.provider === 'openai') return c.baseURL && c.model ? '' : place + 'でAPI URLとモデル名を指定してください。';
+  function setupProblem(c, place = t('placeSettings')) {
+    if (c.provider === 'anthropic') return c.claudeApiKey && c.claudeModel ? '' : t('setupClaude', { place });
+    if (c.provider === 'gemini') return c.geminiApiKey && c.geminiModel ? '' : t('setupGemini', { place });
+    if (c.provider === 'deepl') return c.deeplApiKey ? '' : t('setupDeepL', { place });
+    if (c.provider === 'openai') return c.baseURL && c.model ? '' : t('setupLLM', { place });
     return '';
   }
   function saveAppearance(values) {
@@ -146,11 +147,11 @@ var HoverTranslate = (() => {
   function save(values) {
     const baseURL = String(values.baseURL || '').trim();
     const provider = values.provider || config().provider;
-    if (!PROVIDERS.includes(provider)) throw new Error('翻訳サービスが不正です。');
+    if (!PROVIDERS.includes(provider)) throw HTCore.failure('providerInvalid');
     if (provider === 'openai' && baseURL) HTCore.endpoint(baseURL);
-    if (provider === 'openai' && baseURL && !String(values.model || '').trim()) throw new Error('モデル名を入力してください。');
-    if (provider === 'anthropic' && 'claudeModel' in values && !String(values.claudeModel || '').trim()) throw new Error('Claudeのモデル名を入力してください。');
-    if (provider === 'gemini' && 'geminiModel' in values && !String(values.geminiModel || '').trim()) throw new Error('Geminiのモデル名を入力してください。');
+    if (provider === 'openai' && baseURL && !String(values.model || '').trim()) throw HTCore.failure('modelRequired');
+    if (provider === 'anthropic' && 'claudeModel' in values && !String(values.claudeModel || '').trim()) throw HTCore.failure('claudeModelRequired');
+    if (provider === 'gemini' && 'geminiModel' in values && !String(values.geminiModel || '').trim()) throw HTCore.failure('geminiModelRequired');
     if ('sourceLanguage' in values) values.sourceLanguage = HTCore.normalizeSourceLanguage(values.sourceLanguage);
     if ('targetLanguage' in values) values.targetLanguage = HTCore.normalizeLanguage(values.targetLanguage);
     for (const key of Object.keys(defaults)) {
@@ -167,7 +168,7 @@ var HoverTranslate = (() => {
     visitContexts(ctx => ctx.syncControls?.());
   }
   function cancelRequests() {
-    activeFullJob?.archive.cancel('設定が変更されたか、キャッシュが削除されました');
+    activeFullJob?.archive.cancel(t('settingsChanged'));
     generation++;
     for (const xhr of requests) { try { xhr.abort(); } catch (_) {} }
     requests.clear(); inflight.clear();
@@ -184,17 +185,17 @@ var HoverTranslate = (() => {
     const epoch = generation;
     const store = await cacheFor(reader), cache = store.cache;
     await cache.ready;
-    if (epoch !== generation) throw new Error('リクエストをキャンセルしました。');
+    if (epoch !== generation) throw HTCore.failure('requestCancelled');
     const c = config();
     const problem = setupProblem(c);
     if (problem) throw new Error(problem);
-    if (text.length > c.maxChars) throw new Error('認識した文が長すぎるためスキップしました。PDFのテキストや文の区切りを確認してください。');
+    if (text.length > c.maxChars) throw HTCore.failure('tooLong');
     const tokens = HTCore.words(text);
-    if (!tokens.length) throw new Error('翻訳する文字を認識できませんでした。');
+    if (!tokens.length) throw HTCore.failure('noText');
     const key = cache.key(serviceURL(c), serviceModel(c), text, c.targetLanguage, c.alignWords);
     const full = !skipFull && reader ? await fullDocumentFor(reader,store,c) : null;
     if (!force && full?.archive.get(text)) return full.archive.get(text);
-    if (epoch !== generation || signal?.cancelled) throw new Error('リクエストをキャンセルしました。');
+    if (epoch !== generation || signal?.cancelled) throw HTCore.failure('requestCancelled');
     const requestKey = JSON.stringify([store.id, key]);
     const cached = force ? null : cache.get(key);
     if (cached) return cached;
@@ -202,15 +203,15 @@ var HoverTranslate = (() => {
     // Keep one extra slot available to foreground hover while a full job runs.
     const requestLimit=signal?c.fullConcurrency:activeFullJob?c.fullConcurrency+1:2;
     while (inflight.size >= requestLimit) {
-      if (!signal) throw new Error('他の文を処理しています。少し待ってからカーソルを合わせてください。');
+      if (!signal) throw HTCore.failure('busy');
       await Promise.race([...inflight.values()].map(p=>p.catch(()=>null)).concat(signal.promise));
-      if (signal.cancelled || epoch !== generation) throw new Error('リクエストをキャンセルしました。');
+      if (signal.cancelled || epoch !== generation) throw HTCore.failure('requestCancelled');
       if (inflight.has(requestKey)) return inflight.get(requestKey);
     }
     const promise = Promise.resolve().then(async () => {
       let xhr, removeCancel;
       try {
-        if (epoch !== generation || signal?.cancelled) throw new Error('リクエストをキャンセルしました。');
+        if (epoch !== generation || signal?.cancelled) throw HTCore.failure('requestCancelled');
         const request = HTCore.serviceRequest(c, text, tokens);
         const response = await Zotero.HTTP.request(request.method, request.url, {
           headers: request.headers, body: request.body, timeout: 45000, responseType: 'json',
@@ -232,28 +233,30 @@ var HoverTranslate = (() => {
         return result;
       } catch (e) {
         const status = e?.status || e?.xmlhttp?.status;
-        if (status === 401 || status === 403) throw new Error('API認証に失敗しました。APIキーとモデルへのアクセス権を確認してください。');
-        if (status === 429) throw new Error('APIの利用上限または残高不足です。しばらくしてから再試行してください。');
+        if (status === 401 || status === 403) throw HTCore.failure('authFailed');
+        if (status === 429) throw HTCore.failure('quota');
         if (status && c.provider === 'anthropic') {
-          if (status === 400) throw new Error('Claude APIにリクエストを受け付けられませんでした（HTTP 400）。モデル名と、Claude Consoleのクレジット残高を確認してください。');
-          if (status === 529) throw new Error('Claude APIが混み合っています。しばらくしてから再試行してください。');
-          throw new Error('Claude APIへのリクエストに失敗しました（HTTP ' + status + '）。しばらくしてから再試行してください。');
+          if (status === 400) throw HTCore.failure('claudeBadRequest');
+          if (status === 529) throw HTCore.failure('claudeOverloaded');
+          throw HTCore.failure('claudeFailed', { status });
         }
         if (status && c.provider === 'gemini') {
-          if (status === 400) throw new Error('Gemini APIにリクエストを受け付けられませんでした（HTTP 400）。APIキーとモデル名を確認してください。');
-          if (status === 404) throw new Error('Geminiのモデルが見つかりません（HTTP 404）。モデル名を確認してください。');
-          throw new Error('Gemini APIへのリクエストに失敗しました（HTTP ' + status + '）。しばらくしてから再試行してください。');
+          if (status === 400) throw HTCore.failure('geminiBadRequest');
+          if (status === 404) throw HTCore.failure('geminiNotFound');
+          throw HTCore.failure('geminiFailed', { status });
         }
         if (status && c.provider === 'deepl') {
-          if (status === 456) throw new Error('DeepLの文字数の上限に達しました。上限は請求期間ごとに戻ります。');
-          if (status === 529) throw new Error('DeepLが混み合っています。しばらくしてから再試行してください。');
-          throw new Error('DeepLへのリクエストに失敗しました（HTTP ' + status + '）。APIキーと言語の設定を確認してください。');
+          if (status === 456) throw HTCore.failure('deeplQuota');
+          if (status === 529) throw HTCore.failure('deeplOverloaded');
+          throw HTCore.failure('deeplFailed', { status });
         }
-        if (status) throw new Error('APIリクエストに失敗しました（HTTP ' + status + '）。URLとモデル名を確認してください。');
+        if (status) throw HTCore.failure('httpFailed', { status });
         // Do not show server error bodies, request headers, or credentials.
-        if (e instanceof SyntaxError) throw new Error('モデルの応答が有効なJSONではありません。JSON出力に対応するモデルを使用してください。');
-        if (/^(認識|モデル|有効|訳文|翻訳|HTTPS|API|Claude|Gemini|DeepL)/.test(e.message || '')) throw e;
-        throw new Error('リクエストが完了しませんでした。ネットワーク、API URL、タイムアウト設定を確認してください。');
+        if (e instanceof SyntaxError) throw HTCore.failure('invalidJSON');
+        // Errors this plugin raised (HTCore.failure) are shown as they are, except
+        // a cancelled request, which ends like any other incomplete request.
+        if (e?.htCode && e.htCode !== 'requestCancelled') throw e;
+        throw HTCore.failure('requestFailed');
       } finally {
         requests.delete(xhr);
         removeCancel?.();
@@ -267,9 +270,9 @@ var HoverTranslate = (() => {
   // the settings screen; anything missing comes from the saved configuration.
   async function listModels(values = {}) {
     const c = { ...config(), ...values };
-    if (c.provider === 'anthropic' && !String(c.claudeApiKey || '').trim()) throw new Error('ClaudeのAPIキーを入力してから、モデル一覧を取得してください。');
-    if (c.provider === 'gemini' && !String(c.geminiApiKey || '').trim()) throw new Error('GeminiのAPIキーを入力してから、モデル一覧を取得してください。');
-    if (c.provider === 'openai' && !String(c.baseURL || '').trim()) throw new Error('API URLを入力してから、モデル一覧を取得してください。');
+    if (c.provider === 'anthropic' && !String(c.claudeApiKey || '').trim()) throw HTCore.failure('modelsNeedClaudeKey');
+    if (c.provider === 'gemini' && !String(c.geminiApiKey || '').trim()) throw HTCore.failure('modelsNeedGeminiKey');
+    if (c.provider === 'openai' && !String(c.baseURL || '').trim()) throw HTCore.failure('modelsNeedURL');
     const request = HTCore.modelsRequest(c);
     if (!request) return [];
     try {
@@ -279,9 +282,9 @@ var HoverTranslate = (() => {
     } catch (e) {
       const status = e?.status || e?.xmlhttp?.status;
       // Do not show server error bodies or credentials.
-      if (status === 401 || status === 403) throw new Error('モデル一覧を取得できません。APIキーを確認してください。');
-      if (c.provider === 'openai' && /^http:\/\/127\.0\.0\.1/.test(String(c.baseURL))) throw new Error('モデル一覧を取得できません。Ollama や LM Studio が起動しているか確認してください。');
-      throw new Error('モデル一覧を取得できません。接続先を確認するか、モデル名を直接入力してください。');
+      if (status === 401 || status === 403) throw HTCore.failure('modelsAuth');
+      if (c.provider === 'openai' && /^http:\/\/127\.0\.0\.1/.test(String(c.baseURL))) throw HTCore.failure('modelsLocalDown');
+      throw HTCore.failure('modelsFailed');
     }
   }
   function makeContext(win, app, hostWindow, reader) {
@@ -306,12 +309,12 @@ var HoverTranslate = (() => {
     const controlsDoc=toolbar ? readerDoc : doc;
     const controlsRow = html('div'); controlsRow.style.cssText='display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
     const toggle = html('button'); toggle.id='hover-translate-toggle'; toggle.type='button';
-    const settings = html('button'); settings.type='button'; settings.title='翻訳設定';settings.setAttribute('aria-label','翻訳設定');settings.className='toolbar-button';
+    const settings = html('button'); settings.type='button'; settings.title=t('settingsTitle');settings.setAttribute('aria-label',t('settingsTitle'));settings.className='toolbar-button';
     const icon=doc.createElementNS('http://www.w3.org/2000/svg','svg');
     for(const [key,value] of Object.entries({viewBox:'0 0 24 24',width:'24',height:'24',fill:'none',stroke:'currentColor','stroke-width':'1.5','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))icon.setAttribute(key,value);
     const path=doc.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M3 5h12M9 3v2M5 5c0 5 4 9 8 11M13 5c0 5-4 9-9 11M13 21l4-10 4 10M14.5 17h5');icon.appendChild(path);settings.appendChild(icon); settings.setAttribute('aria-expanded','false');
     const fullStart = html('button'); fullStart.id='hover-translate-fulltext'; fullStart.type='button';
-    fullStart.setAttribute('data-ht-context',contextID); fullStart.textContent='全文翻訳';
+    fullStart.setAttribute('data-ht-context',contextID); fullStart.textContent=t('fullStart');
     for (const b of [toggle,fullStart]) { b.style.cssText='padding:4px 9px;border:var(--material-border-quarternary,1px solid #adb7be);border-radius:5px;background:var(--material-button,ButtonFace);color:inherit;cursor:pointer;font:inherit;';  }
     settings.style.cssText='width:28px;height:28px;padding:0;flex-shrink:0;';
     controlsRow.appendChild(settings);
@@ -327,32 +330,31 @@ var HoverTranslate = (() => {
       if(options) for(const [value,text] of options) {const o=html('option');o.value=value;o.textContent=text;input.appendChild(o);}
       else input.type='text';
       row.append(name,input);panel.appendChild(row);fields[key]=input;
-      input.addEventListener('change',()=>{try{const values={...config(),[key]:input.value};save(values);feedback.textContent='保存しました。';}catch(e){feedback.textContent=e.message;syncControls();}});
+      input.addEventListener('change',()=>{try{const values={...config(),[key]:input.value};save(values);feedback.textContent=t('saved');}catch(e){feedback.textContent=e.message;syncControls();}});
       return input;
     }
-    const languageOptions=[['en','英語'],['ja','日本語'],['zh-CN','中国語（簡体字）'],['ko','韓国語'],['de','ドイツ語'],['fr','フランス語'],['es','スペイン語']];
-    field('provider','サービス',[['google','Google翻訳'],['deepl','DeepL'],['openai','LLM API'],['anthropic','Claude'],['gemini','Gemini']]);
-    field('sourceLanguage','翻訳元',[['auto','自動判定'],...languageOptions]); field('targetLanguage','翻訳先',languageOptions);
+    const languageOptions=['en','ja','zh-CN','ko','de','fr','es'].map(code=>[code,t('lang.'+code)]);
+    field('provider',t('fieldProvider'),[['google',t('provider.google')],['deepl','DeepL'],['openai','LLM API'],['anthropic','Claude'],['gemini','Gemini']]);
+    field('sourceLanguage',t('fieldSource'),[['auto',t('lang.auto')],...languageOptions]); field('targetLanguage',t('fieldTarget'),languageOptions);
     const urlField=field('baseURL','API URL'); urlField.placeholder='http://127.0.0.1:1234/v1';
-    const modelField=field('model','モデル'); modelField.placeholder='モデル名を入力／一覧から選択';
-    const claudeModelField=field('claudeModel','モデル'); claudeModelField.placeholder='claude-haiku-5-5';
-    const geminiModelField=field('geminiModel','モデル'); geminiModelField.placeholder='gemini-3.5-flash-lite';
+    const modelField=field('model',t('fieldModel')); modelField.placeholder=t('modelPlaceholder');
+    const claudeModelField=field('claudeModel',t('fieldModel')); claudeModelField.placeholder='claude-haiku-5-5';
+    const geminiModelField=field('geminiModel',t('fieldModel')); geminiModelField.placeholder='gemini-3.5-flash-lite';
     const modelList=html('datalist');modelList.id='hover-translate-models-'+contextID;for(const input of [modelField,claudeModelField,geminiModelField])input.setAttribute('list',modelList.id);panel.appendChild(modelList);
-    const loadModels=html('button');loadModels.type='button';loadModels.textContent='モデル一覧を取得';panel.appendChild(loadModels);
+    const loadModels=html('button');loadModels.type='button';loadModels.textContent=t('loadModels');panel.appendChild(loadModels);
     const feedback=html('div');feedback.setAttribute('role','status');feedback.style.cssText='font-size:12px;overflow-wrap:anywhere;';panel.appendChild(feedback);
     const help=html('div');help.style.cssText='font-size:11px;color:var(--fill-secondary,GrayText);';panel.appendChild(help);
-    loadModels.onclick=async()=>{loadModels.disabled=true;feedback.textContent='モデル一覧を取得中…';try{
+    loadModels.onclick=async()=>{loadModels.disabled=true;feedback.textContent=t('loadingModels');try{
       const ids=await listModels(config());if(!isAlive())return;
       modelList.replaceChildren();for(const id of ids){const option=html('option');option.value=id;modelList.appendChild(option);}
-      feedback.textContent=ids.length?'モデル欄から選択できます。':'一覧を取得できませんでした。モデル名を直接入力してください。';
+      feedback.textContent=ids.length?t('modelsReady'):t('modelsNone');
     }catch(e){if(isAlive())feedback.textContent=e.message;}finally{if(isAlive())syncControls();}};
-    function syncControls(){const c=config();toggle.textContent=c.enabled?'翻訳：オン':'翻訳：オフ';toggle.setAttribute('aria-pressed',String(c.enabled));
+    function syncControls(){const c=config();toggle.textContent=c.enabled?t('toggleOn'):t('toggleOff');toggle.setAttribute('aria-pressed',String(c.enabled));
       for(const [key,input]of Object.entries(fields))input.value=c[key];
       const llm=c.provider==='openai',noModels=['google','deepl'].includes(c.provider);
       for(const [key,shown] of [['baseURL',llm],['model',llm],['claudeModel',c.provider==='anthropic'],['geminiModel',c.provider==='gemini']]){fields[key].disabled=!shown;fields[key].parentElement.style.display=shown?'grid':'none';}
       loadModels.style.display=noModels?'none':'';loadModels.disabled=noModels;
-      help.textContent={google:'翻訳する原文はGoogleへ送信されます。',deepl:'翻訳する原文はDeepLへ送信されます。DeepLのAPIキーはZoteroの設定画面で登録してください。',
-        anthropic:'翻訳する原文はAnthropicへ送信されます。ClaudeのAPIキーはZoteroの設定画面で登録してください。',gemini:'翻訳する原文はGoogleへ送信されます。GeminiのAPIキーはZoteroの設定画面で登録してください。'}[c.provider]||'APIキーが必要な接続先はZoteroの設定画面で登録してください。';
+      help.textContent=t(['google','deepl','anthropic','gemini'].includes(c.provider)?'help.'+c.provider:'help.openai');
     }
     toggle.onclick=()=>{save({...config(),enabled:!config().enabled});};
     function closePanel(){panel.hidden=true;panel.style.display='none';settings.setAttribute('aria-expanded','false');settings.classList.remove('active');}
@@ -370,40 +372,40 @@ var HoverTranslate = (() => {
       if (!isAlive()) return;
       const working = ['extracting','translating'].includes(s.phase);
       fullStart.disabled = startingFull;
-      fullStart.textContent = s.phase === 'extracting' ? '読み込み '+s.pages+'/'+s.pageCount+' · キャンセル' :
-        s.phase === 'translating' ? '翻訳 '+s.done+'/'+s.total+' · キャンセル' :
-        s.phase === 'complete' ? '全文翻訳 ✓' : s.phase === 'idle' ? '全文翻訳' : '全文翻訳を再開・再試行';
-      fullStart.title = working ? 'クリックして全文翻訳をキャンセル' :
-        s.phase === 'complete' ? '完了 '+s.done+'/'+s.total+' 文' : s.message || '';
-      if (!working && s.emptyPages) fullStart.title += ' · '+s.emptyPages+' ページに翻訳できる文がありません';
+      fullStart.textContent = s.phase === 'extracting' ? t('fullReading', { pages: s.pages, count: s.pageCount }) :
+        s.phase === 'translating' ? t('fullTranslating', { done: s.done, total: s.total }) :
+        s.phase === 'complete' ? t('fullDone') : s.phase === 'idle' ? t('fullStart') : t('fullResume');
+      fullStart.title = working ? t('fullCancelHint') :
+        s.phase === 'complete' ? t('fullDoneTitle', { done: s.done, total: s.total }) : s.message || '';
+      if (!working && s.emptyPages) fullStart.title += t('fullEmptyPages', { count: s.emptyPages });
       fullStart.setAttribute('aria-busy', String(working));
     }
     async function startFull() {
       if (startingFull || fullStart.disabled) return;
-      startingFull = true; fullStart.disabled = true; fullStart.textContent = '準備中…'; fullStart.title = '';
+      startingFull = true; fullStart.disabled = true; fullStart.textContent = t('preparing'); fullStart.title = '';
       const epoch = generation, documentRef = app.pdfDocument;
       try {
         const c = config();
-        const problem = setupProblem(c, '設定画面');
+        const problem = setupProblem(c, t('placePane'));
         if (problem) throw new Error(problem);
         serviceURL(c);
         const count = Number(documentRef?.numPages);
-        if (!Number.isInteger(count) || count<1) throw new Error('PDFを読み込み中です。少し待ってから再試行してください。');
+        if (!Number.isInteger(count) || count<1) throw HTCore.failure('pdfLoading');
         const store = await cacheFor(reader);
-        if (!store.path) throw new Error('全文キャッシュには書き込み可能なPDFフォルダーが必要です。先に添付ファイルをダウンロードしてください。');
+        if (!store.path) throw HTCore.failure('fullNeedsFolder');
         const entry = await fullDocumentFor(reader,store,c);
         if (!isAlive() || epoch !== generation) return;
-        if (activeFullJob && activeFullJob.archive !== entry.archive) throw new Error('他のPDFを全文翻訳中です。完了を待つかキャンセルしてください。');
+        if (activeFullJob && activeFullJob.archive !== entry.archive) throw HTCore.failure('fullOtherPdf');
         fullEntry = entry; unsubscribeFull?.();
         unsubscribeFull = entry.archive.subscribe(fullFeedback);
         activeFullJob = entry; startingFull = false;
         await entry.archive.run({pageCount:count,concurrency:c.fullConcurrency,getPage:async i=>{
-          if(!isAlive() || app.pdfDocument !== documentRef) throw new Error('PDFリーダーが閉じられたか、文書が変更されました');
+          if(!isAlive() || app.pdfDocument !== documentRef) throw HTCore.failure('readerChanged');
           return readPage(i,documentRef);
         }});
         if (activeFullJob === entry) activeFullJob = null;
       } catch(e) {
-        if (isAlive()) { fullStart.textContent = '全文翻訳を再試行'; fullStart.title = e.message || '全文翻訳を開始できませんでした'; }
+        if (isAlive()) { fullStart.textContent = t('fullRetry'); fullStart.title = e.message || t('fullStartFailed'); }
       } finally {
         startingFull = false;
         if (isAlive()) { fullStart.disabled=false; fullStart.setAttribute('aria-busy','false'); }
@@ -412,8 +414,8 @@ var HoverTranslate = (() => {
     fullStart.addEventListener('click',()=>{
       if (fullStart.disabled) return;
       if (fullEntry && ['extracting','translating'].includes(fullEntry.archive.status().phase)) {
-        fullStart.disabled=true; fullStart.textContent='キャンセル中…';
-        fullEntry.archive.cancel('キャンセルしました。未翻訳の文から再開できます');
+        fullStart.disabled=true; fullStart.textContent=t('cancelling');
+        fullEntry.archive.cancel(t('cancelledResume'));
       } else startFull();
     });
     async function readPage(pageIndex, documentRef = app.pdfDocument) {
@@ -445,10 +447,10 @@ var HoverTranslate = (() => {
     }
     const box = html('div'); box.id = 'hover-translate-popup';
     box.style.cssText = 'position:fixed;z-index:2147483646;left:12px;top:12px;width:max-content;max-width:min(640px, calc(100vw - 24px));max-height:42vh;overflow:auto;box-sizing:border-box;padding:16px 18px;background:#fff;color:#182a31;border:1px solid #9bacb6;border-radius:12px;box-shadow:0 5px 28px #0003;font:15px/1.65 system-ui,sans-serif;display:none;user-select:text;';
-    const close = html('button'); close.textContent = '×'; close.title = '閉じる（Esc）';
+    const close = html('button'); close.textContent = '×'; close.title = t('close');
     close.style.cssText = 'position:absolute;right:10px;top:6px;width:24px;height:24px;padding:0;line-height:24px;border:0;background:transparent;color:inherit;font-size:22px;cursor:pointer;';
-    const refresh = html('button'); refresh.textContent = '↻'; refresh.title = '再翻訳';
-    refresh.setAttribute('aria-label', 'この文を再翻訳');
+    const refresh = html('button'); refresh.textContent = '↻'; refresh.title = t('retranslate');
+    refresh.setAttribute('aria-label', t('retranslateLabel'));
     refresh.style.cssText = 'position:absolute;right:10px;top:32px;width:24px;height:24px;padding:0;line-height:24px;border:0;background:transparent;color:inherit;font-size:20px;cursor:pointer;';
     const translation = html('div'); translation.style.cssText = 'font-size:17px;line-height:1.9;min-height:28px;padding-right:24px;white-space:normal;overflow-wrap:anywhere;';
     box.append(close, refresh, translation); doc.body.appendChild(box);
@@ -519,22 +521,22 @@ var HoverTranslate = (() => {
       const ticket = sequence, text = current.sentence.text;
       busy = true;
       activeContext = contextToken;
-      refresh.disabled = true; refresh.textContent = '…'; refresh.title = force ? '再翻訳中…' : '翻訳中…';
+      refresh.disabled = true; refresh.textContent = '…'; refresh.title = force ? t('retranslating') : t('translating');
       box.style.display = 'block';
       // Retain the existing translation while explicitly refreshing it.
-      if (!force || !result) translation.textContent = '文を翻訳中…';
+      if (!force || !result) translation.textContent = t('translatingSentence');
       box.setAttribute('aria-busy', 'true');
       position();
       try {
         const translated = await translate(text, { force, reader });
         if (!isAlive() || ticket !== sequence || !current) return;
         result = translated; render();
-        refresh.title = force ? '再翻訳しました。クリックするともう一度翻訳します' : '再翻訳';
+        refresh.title = force ? t('retranslated') : t('retranslate');
       } catch (e) {
         if (!isAlive() || ticket !== sequence) return;
-        if (force && result) { render(); translation.appendChild(doc.createTextNode('（再翻訳に失敗しました。ショートカットで再試行できます）')); }
+        if (force && result) { render(); translation.appendChild(doc.createTextNode(t('retranslateFailed'))); }
         else translation.textContent = e.message;
-        refresh.title = '翻訳に失敗しました。クリックして再試行';
+        refresh.title = t('translateFailed');
         position();
       } finally {
         if (isAlive() && ticket === sequence) { busy = false; refresh.disabled = false; refresh.textContent = '↻'; box.removeAttribute('aria-busy'); }
@@ -702,7 +704,7 @@ var HoverTranslate = (() => {
       // Invalidate asynchronous work before touching any window-owned objects.
       disposed = true; sequence++; lookup++; current = null; pending = null; result = null; pages.clear();
       unsubscribeFull?.();
-      if (activeFullJob === fullEntry) fullEntry?.archive.cancel('リーダーが閉じられました。開き直すと再開できます');
+      if (activeFullJob === fullEntry) fullEntry?.archive.cancel(t('readerClosed'));
       if (activeContext === contextToken) activeContext = null;
       const cleanup = [
         () => win.clearTimeout(hoverTimer), () => win.clearTimeout(hideTimer),

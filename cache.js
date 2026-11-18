@@ -33,7 +33,7 @@
           } catch (_) { /* A damaged entry must not discard other sentences. */ }
         }
         prune();
-      } catch (_) { error = 'キャッシュを読み込めないため、メモリ上で保持します。新しい訳文は保存を再試行します。'; }
+      } catch (_) { error = HTCore.t('cacheReadFailed'); }
     })();
     function persist() {
       if (!storage) return chain;
@@ -44,7 +44,7 @@
         dirty = false; prune();
         const snapshot = { schema: 1, entries: [...entries] };
         try { await storage.write(snapshot); error = ''; }
-        catch (_) { error = 'キャッシュを保存できませんでした。現在の訳文は利用できます。空き容量とフォルダーの書き込み権限を確認してください。'; }
+        catch (_) { error = HTCore.t('cacheWriteFailed'); }
       });
       return chain;
     }
