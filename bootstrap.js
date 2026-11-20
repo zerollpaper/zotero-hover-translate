@@ -13,6 +13,12 @@ async function startup({ rootURI }, reason) {
   });
   htScope.HoverTranslate.start();
 }
+function onMainWindowLoad({ window }) {
+  htScope?.HoverTranslate?.mainWindowLoaded(window);
+}
+function onMainWindowUnload({ window }) {
+  htScope?.HoverTranslate?.mainWindowUnloaded(window);
+}
 async function shutdown() {
   await htScope?.HoverTranslate?.stop();
   delete Zotero.HoverTranslate;

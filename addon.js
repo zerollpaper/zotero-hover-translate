@@ -759,14 +759,45 @@ var HoverTranslate = (() => {
     for (const reader of Zotero.Reader._readers || []) walk(reader._iframeWindow, 0, reader._window, reader);
     for (const [win, ctx] of contexts) if (!found.has(win)) dropContext(win, ctx);
   }
-  function start() { running = true; timerWindow = Zotero.getMainWindow(); scan(); timer = timerWindow.setInterval(scan, 1500); }
+  // The scan timer lives on a main window, so it has to move when that window
+  // closes: on macOS Zotero keeps running and opens a new main window later.
+  function stopTimer() {
+    try { timerWindow?.clearInterval(timer); } catch (_) {}
+    timer = null; timerWindow = null;
+  }
+  function startTimer(win) {
+    stopTimer();
+    if (!win) return;
+    timerWindow = win; timer = win.setInterval(scan, 1500);
+  }
+  const mainWindows = new Set();
+  function start() {
+    running = true; scan();
+    const win = Zotero.getMainWindow();
+    if (win) mainWindows.add(win);
+    startTimer(win);
+  }
+  function mainWindowLoaded(win) {
+    if (!running) return;
+    mainWindows.add(win);
+    if (timerWindow) return;
+    startTimer(win); scan();
+  }
+  function mainWindowUnloaded(win) {
+    mainWindows.delete(win);
+    if (!running || win !== timerWindow) return;
+    stopTimer();
+    // Zotero may still report the closing window as the main one.
+    const other = [...mainWindows].find(w => w !== win && !w.closed);
+    if (other) startTimer(other);
+  }
   async function stop() {
     running = false;
-    try { timerWindow?.clearInterval(timer); } catch (_) {}
+    stopTimer(); mainWindows.clear();
     cancelRequests();
     for (const [win, ctx] of contexts) dropContext(win, ctx);
     await flushFullDocuments();
     await flushCaches();
   }
-  return { start, stop, config, save, saveAppearance, listModels, setSourceHighlight, normalizeAppearance, translate, reset, flushCache: flushCaches, diagnostic: () => ({ connectedPDFViews: contexts.size, cache: cacheStatus() }) };
+  return { start, stop, mainWindowLoaded, mainWindowUnloaded, config, save, saveAppearance, listModels, setSourceHighlight, normalizeAppearance, translate, reset, flushCache: flushCaches, diagnostic: () => ({ connectedPDFViews: contexts.size, cache: cacheStatus() }) };
 })();
